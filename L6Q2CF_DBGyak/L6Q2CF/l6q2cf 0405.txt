@@ -1,0 +1,174 @@
+create table Tulajdonos(
+  Tkod char(3) primary key,
+  Rendszam char(7) not null,
+  Tipus char(10) not null, 
+  Szin char(10),
+  Kor int check (Kor>0),
+  Ar int,
+  Tulaj char(3),
+  Foreign key(Tulaj) references Tulajdonos(Tkod)
+);
+
+
+
+
+create table Auto(
+Rendszam char(7) primary key,
+Tipus char(10)
+Szin char(10)
+Kor char(3);
+ar int(8);
+tulaj char (3)
+);
+
+
+
+
+
+insert into Tulajdonos (Tkod, Nev, Cim, Telefon) values
+('178', 'Jó Éva', 'Miskolc', '3057654321');
+
+
+
+select* from Tulajdonos
+
+
+
+
+insert into Tulajdonos (Tkod, Nev, Cim, Telefon) values
+('108' , 'Kiss János', 'Szerencs' , '703855445'),
+('100' , 'Kovács Magor', 'Szerencs' , '703855445'),
+('101' , 'Retek Ödön', Budapest' , '304325437'),
+('102' , 'Virág Zoltán', 'Miskolc' , '304325437'),
+('103' , 'Kovács Magor', 'Miskolc' , '701111111'),
+('104' , 'Asztal Antal', 'Szerencs' , '701234567'),
+('105' , 'Kovács Magor', 'Nyék' , '707654321'),
+('106' , 'Kovács Magor', 'Ózd' , '701234765'),
+('107' , 'Kis Éva', 'Szerencs' , '707651234'),
+('109' , 'Kovács Magor', Eger' , '701237654');
+
+
+
+DELETE FROM Auto WHERE Rendszam='gdf-525';
+
+
+RENAME TABLE Auto TO Jarmu;
+RENAME TABLE Jarmu TO Auto;
+
+
+ALTER TABLE Auto CHANGE Tulaj Tul INT;
+ALTER TABLE Auto CHANGE Tul Tulaj INT;
+
+
+ALTER TABLE Auto ADD Koros INT FIRST;
+
+
+ALTER TABLE Auto DROP COLUMN Koros;
+
+
+ALTER TABLE Auto ADD Koros INT;
+
+
+ALTER TABLE Auto DROP COLUMN Koros;
+
+
+ALTER TABLE Auto ADD Koros INT AFTER Szin;
+
+
+ALTER TABLE Auto DROP COLUMN Koros;
+
+
+ALTER TABLE Auto CHANGE Kor Koros INT NOT NULL;
+ALTER TABLE Auto CHANGE Koros Kor INT NOT NULL;
+
+
+ALTER TABLE Tulajdonos ADD Telefon VARCHAR(15);
+ALTER TABLE Tulajdonos MODIFY Telefon VARCHAR(12);
+
+ALTER TABLE Tulajdonos MODIFY Telefon VARCHAR(15);
+
+
+ALTER TABLE Tulajdonos ADD UNIQUE (Tkod);
+
+
+ALTER TABLE Tulajdonos DROP INDEX Tkod;
+
+
+INSERT INTO Tulajdonos (Tkod, Nev, Varos) VALUES
+(1, 'Kis József', 'Miskolc'),
+(2, 'Nagy Anna', 'Debrecen'),
+(3, 'Szabó László', 'Ózd'),
+(4, 'Kovács Edit', 'Miskolc');
+
+
+INSERT INTO Auto (Rendszam, Tipus, Szin, Kor, Ar, Tulaj) VALUES
+('ABC-123', 'Opel Astra', 'piros', 5, 1500000, 1),
+('XYZ-789', 'Suzuki Swift', 'kék', 3, 1800000, 2),
+('MNO-456', 'Toyota Yaris', 'fehér', 8, 1300000, 1),
+('JKL-321', 'Opel Astra', 'piros', 6, 1400000, 3);
+
+
+SELECT * FROM Tulajdonos;
+SELECT * FROM Auto;
+
+
+UPDATE Tulajdonos SET Nev = 'Kis Ferenc' WHERE Nev = 'Kis József';
+
+
+SELECT Tipus, Ar, Szin FROM Auto;
+
+
+SELECT A.Rendszam, T.Nev FROM Auto A JOIN Tulajdonos T ON A.Tulaj = T.Tkod;
+
+
+SELECT A.* FROM Auto A JOIN Tulajdonos T ON A.Tulaj = T.Tkod WHERE T.Varos = 'Miskolc';
+
+
+SELECT T.Nev, A.Rendszam
+FROM Tulajdonos T LEFT JOIN Auto A ON T.Tkod = A.Tulaj;
+
+
+SELECT A.Rendszam, T.Nev
+FROM Auto A LEFT JOIN Tulajdonos T ON A.Tulaj = T.Tkod;
+
+
+SELECT Rendszam FROM Auto
+WHERE Ar > (
+    SELECT AVG(Ar) FROM Auto A
+    JOIN Tulajdonos T ON A.Tulaj = T.Tkod
+    WHERE T.Varos = 'Miskolc'
+)
+AND Rendszam NOT IN (
+    SELECT A2.Rendszam FROM Auto A2
+    JOIN Tulajdonos T2 ON A2.Tulaj = T2.Tkod
+    WHERE T2.Varos = 'Ózd'
+);
+
+
+SELECT T.Nev FROM Tulajdonos T
+JOIN Auto A ON T.Tkod = A.Tulaj
+GROUP BY T.Tkod HAVING COUNT(*) > 1;
+
+
+SELECT A1.Rendszam FROM Auto A1
+WHERE EXISTS (
+    SELECT * FROM Auto A2
+    WHERE A1.Tipus = A2.Tipus AND A1.Kor > A2.Kor AND A1.Ar > A2.Ar
+);
+
+
+SELECT * FROM Auto
+WHERE Ar < (
+    SELECT MIN(Ar) FROM Auto WHERE Szin = 'piros'
+);
+
+
+SELECT * FROM Auto A
+WHERE NOT EXISTS (
+    SELECT * FROM Auto P
+    WHERE P.Szin = 'piros' AND A.Ar >= P.Ar
+);
+
+
+SELECT Nev FROM Tulajdonos
+WHERE Tkod NOT IN (SELECT DISTINCT Tulaj FROM Auto WHERE Tulaj IS NOT NULL);
